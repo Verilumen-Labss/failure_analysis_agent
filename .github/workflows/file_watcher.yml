@@ -1,0 +1,32 @@
+name: File Ownership Watcher
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  check-owner:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if unauthorized user pushed
+        if: ${{ github.actor != 'Vishwajith' }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: "⚠️ UNAUTHORIZED CHANGE — ${{ github.actor }} modified failure_analysis_agent!"
+          to: contact@verilumen.ai,lavanya@verilumen.ai,suban@verilumen.ai,vishwa@verilumen.ai
+          from: verilumen.notify@gmail.com
+          body: |
+            ⚠️ WARNING — Unauthorized File Modification Detected!
+
+            Repository  : ${{ github.repository }}
+            Modified by : ${{ github.actor }}
+            Branch      : ${{ github.ref_name }}
+            Commit      : ${{ github.event.head_commit.message }}
+            View change : ${{ github.event.head_commit.url }}
+
+            This repository is assigned to Vishwajith only.
+            Please review this change immediately!
